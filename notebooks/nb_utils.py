@@ -127,12 +127,19 @@ def random_policy(env):
     return random.choice(list(env.get_next_states().keys()))
 
 
-def greedy_policy(model):
-    """Return a policy that chooses the placement with the highest network value."""
+def greedy_policy(model, use_move_reward=False, gamma=0.99):
+    """
+    Return a policy that chooses the placement with the highest network value.
+
+    use_move_reward=True: choose by reward + gamma * value. The reward is 1 + lines² × width.
+    """
     def policy(env):
         actions, states = zip(*env.get_next_states().items())
         with torch.no_grad():
             values = model(torch.stack(states))[:, 0]
+        if use_move_reward:
+            lines = torch.stack(states)[:, 0]
+            values = 1 + lines ** 2 * env.width + gamma * values
         return actions[torch.argmax(values).item()]
     return policy
 

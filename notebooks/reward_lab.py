@@ -46,9 +46,17 @@ def reward_table(rewards, width=10):
     return "\n".join(rows)
 
 
-def train_dqn(reward_fn, hp, seed=123, log_every=0):
+def move_rewards(states, reward_fn, width=10):
+    """The reward of each possible move, from the lines_cleared feature (column 0) of its afterstate."""
+    return torch.tensor([float(reward_fn(int(n), False, width)) for n in states[:, 0]])
+
+
+def train_dqn(reward_fn, hp, seed=123, log_every=0, use_move_reward=False):
     """
     The training loop of Lesson 3, Part 5, as a function.
+
+    use_move_reward=False: choose argmax(value), as train.py does.
+    use_move_reward=True:  choose argmax(reward + gamma * value) (Lesson 3, Part 10).
 
     Returns (model, history). history has one row per game: (epoch, pieces, lines).
     """
@@ -72,7 +80,10 @@ def train_dqn(reward_fn, hp, seed=123, log_every=0):
             index = random.randint(0, len(actions) - 1)
         else:
             with torch.no_grad():
-                index = torch.argmax(model(states)[:, 0]).item()
+                values = model(states)[:, 0]
+            if use_move_reward:
+                values = move_rewards(states, reward_fn, env.width) + hp["gamma"] * values
+            index = torch.argmax(values).item()
         next_state = states[index]
 
         reward, done = env.step(actions[index])
