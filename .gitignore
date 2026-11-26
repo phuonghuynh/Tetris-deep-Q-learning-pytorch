@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Outputs of train.py and test.py
+tensorboard/
+output.mp4
+my_models/
+
+# Session temp files
+.ignoreme/
+
+# IDE
+.idea/

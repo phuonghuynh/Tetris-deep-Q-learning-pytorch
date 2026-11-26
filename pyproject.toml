@@ -1,0 +1,21 @@
+[project]
+name = "tetris-dqn"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.5",
+    "opencv-python>=5.1.0.95",
+    "pillow>=13.0.0",
+    "tensorboard>=2.21.0",
+    "tensorboardx>=2.6.5",
+    "torch>=2.15.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "jupyterlab>=4.6.6",
+    "nbconvert>=7.17.2",
+    "nbformat>=5.11.1",
+]
