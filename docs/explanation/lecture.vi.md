@@ -380,7 +380,7 @@ Chỉ có chênh lệch giữa các giá trị là quan trọng. Agent so sánh 
 | Giới hạn | Hệ quả |
 |---|---|
 | Không có mạng mục tiêu (target network) | mục tiêu dịch chuyển sau mỗi bước, nên huấn luyện không ổn định và một mạng tốt có thể tệ đi |
-| Lựa chọn bỏ qua phần thưởng của nước đi | agent chọn bằng `argmax V(afterstate)`, không phải `argmax (reward + γ·V(afterstate))` |
+| Lựa chọn bỏ qua phần thưởng của nước đi | agent chọn bằng `argmax V(afterstate)`, không phải `argmax (reward + γ·V(afterstate))`; cách sửa ở mục 8.2 |
 | 4 đặc trưng do con người làm | agent không thấy những mẫu nằm ngoài các đặc trưng này, ví dụ một giếng sâu |
 | Không nhìn trước | trò chơi biết mảnh tiếp theo, nhưng agent không dùng nó |
 | Không có hình phạt thua thật sự | −2 không được trả về, nên agent chỉ học tránh thua qua việc mất phần thưởng tương lai |
@@ -405,6 +405,17 @@ Chỉ có chênh lệch giữa các giá trị là quan trọng. Agent so sánh 
 ### 8.2 Quyết định tốt hơn
 
 - **Thêm phần thưởng của nước đi vào lựa chọn:** `argmax (reward + γ·V(afterstate))`. Đây là quy tắc chọn tham lam thông thường cho giá trị afterstate.
+  [Bài 3](../../notebooks/03_training_loop.ipynb), Phần 10 thử nó với thiết lập của Bài 3 và 3 seed:
+
+  | Seed | `argmax V`: số hàng khi kiểm tra | `argmax (r + γ·V)`: số hàng khi kiểm tra |
+  |---|---|---|
+  | 123 | 91 | 197 |
+  | 7 | 55 | 197 |
+  | 42 | 196 | 154 |
+  | trung bình | 114 | 183 |
+
+  Ở cuối quá trình huấn luyện, quy tắc mới tốt hơn với cả 3 seed (153–159 so với 89–109 hàng mỗi ván).
+  Quy tắc cũ không thấy phần thưởng của một lần xóa hàng khi chọn. Quy tắc mới thấy được.
 - **Nhìn trước với mảnh tiếp theo:** với mỗi vị trí của mảnh hiện tại, thử mọi vị trí của mảnh tiếp theo, và chọn cặp tốt nhất.
 - **Giữ mạng tốt nhất:** cứ N bước thì kiểm tra với ε = 0, và lưu mạng khi nó tốt nhất từ trước đến giờ.
 

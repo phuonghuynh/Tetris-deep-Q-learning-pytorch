@@ -379,7 +379,7 @@ Only the differences between values matter. The agent compares afterstates of th
 | Limit | Effect |
 |---|---|
 | No target network | the targets move with each step, so training is unstable and a good network can get worse |
-| The choice ignores the reward of the move | the agent chooses with `argmax V(afterstate)`, not `argmax (reward + γ·V(afterstate))` |
+| The choice ignores the reward of the move | the agent chooses with `argmax V(afterstate)`, not `argmax (reward + γ·V(afterstate))`; the fix is in section 8.2 |
 | 4 hand-made features | the agent cannot see patterns outside these features, for example a deep well |
 | No look-ahead | the game knows the next piece, but the agent does not use it |
 | No real game-over penalty | the −2 is not returned, so the agent learns to avoid game over only through lost future rewards |
@@ -404,6 +404,17 @@ Only the differences between values matter. The agent compares afterstates of th
 ### 8.2 Better decisions
 
 - **Add the move reward to the choice:** `argmax (reward + γ·V(afterstate))`. This is the usual greedy rule for afterstate values.
+  [Lesson 3](../../notebooks/03_training_loop.ipynb), Part 10 tests it with the settings of Lesson 3 and 3 seeds:
+
+  | Seed | `argmax V`: test lines | `argmax (r + γ·V)`: test lines |
+  |---|---|---|
+  | 123 | 91 | 197 |
+  | 7 | 55 | 197 |
+  | 42 | 196 | 154 |
+  | average | 114 | 183 |
+
+  At the end of training the new rule was better with all 3 seeds (153–159 against 89–109 lines per game).
+  The old rule cannot see the reward of a line clear when it chooses. The new rule can.
 - **Look ahead with the next piece:** for each place of the current piece, try each place of the next piece, and take the best pair.
 - **Keep the best network:** test every N steps with ε = 0, and save the network when it is the best so far.
 

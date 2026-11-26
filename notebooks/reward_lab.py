@@ -48,7 +48,8 @@ def reward_table(rewards, width=10):
 
 def move_rewards(states, reward_fn, width=10):
     """The reward of each possible move, from the lines_cleared feature (column 0) of its afterstate."""
-    return torch.tensor([float(reward_fn(int(n), False, width)) for n in states[:, 0]])
+    rewards = reward_fn(states[:, 0], False, width)        # works on all lines at once
+    return torch.as_tensor(rewards, dtype=torch.float32).expand(len(states))
 
 
 def train_dqn(reward_fn, hp, seed=123, log_every=0, use_move_reward=False):
