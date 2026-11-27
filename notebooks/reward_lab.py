@@ -3,6 +3,7 @@ Reward lab: train the same agent with different reward functions and compare the
 
 Only the reward changes. The game, the network, the seed and the settings stay the same.
 """
+import copy
 import random
 import time
 from collections import deque
@@ -52,12 +53,14 @@ def move_rewards(states, reward_fn, width=10):
     return torch.as_tensor(rewards, dtype=torch.float32).expand(len(states))
 
 
-def train_dqn(reward_fn, hp, seed=123, log_every=0, use_move_reward=False):
+def train_dqn(reward_fn, hp, seed=123, log_every=0, use_move_reward=False, target_every=0):
     """
     The training loop of Lesson 3, Part 5, as a function.
 
     use_move_reward=False: choose argmax(value), as train.py does.
     use_move_reward=True:  choose argmax(reward + gamma * value) (Lesson 3, Part 10).
+    target_every=N > 0:    make the targets with a frozen copy of the network, and copy the weights
+                           every N training steps (a target network, Lesson 3, Part 11).
 
     Returns (model, history). history has one row per game: (epoch, pieces, lines).
     """
@@ -65,6 +68,7 @@ def train_dqn(reward_fn, hp, seed=123, log_every=0, use_move_reward=False):
     random.seed(seed)
     env = RewardTetris(reward_fn, width=10, height=20, block_size=30)
     model = DeepQNetwork()
+    target_net = copy.deepcopy(model) if target_every else model
     optimizer = torch.optim.Adam(model.parameters(), lr=hp["lr"])
     criterion = nn.MSELoss()
     memory = deque(maxlen=hp["replay_memory_size"])
@@ -105,11 +109,13 @@ def train_dqn(reward_fn, hp, seed=123, log_every=0, use_move_reward=False):
         r = torch.tensor(r, dtype=torch.float32)[:, None]
         d = torch.tensor(d, dtype=torch.float32)[:, None]
         with torch.no_grad():
-            y = r + hp["gamma"] * model(ns) * (1 - d)
+            y = r + hp["gamma"] * target_net(ns) * (1 - d)
         loss = criterion(model(s), y)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        if target_every and epoch % target_every == 0:
+            target_net.load_state_dict(model.state_dict())
 
         if log_every and epoch % log_every == 0:
             last = np.array(history[-20:])

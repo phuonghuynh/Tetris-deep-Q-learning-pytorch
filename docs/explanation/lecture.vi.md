@@ -379,7 +379,7 @@ Chỉ có chênh lệch giữa các giá trị là quan trọng. Agent so sánh 
 
 | Giới hạn | Hệ quả |
 |---|---|
-| Không có mạng mục tiêu (target network) | mục tiêu dịch chuyển sau mỗi bước, nên huấn luyện không ổn định và một mạng tốt có thể tệ đi |
+| Không có mạng mục tiêu (target network) | mục tiêu dịch chuyển sau mỗi bước, nên huấn luyện không ổn định và một mạng tốt có thể tệ đi (nhưng xem mục 8.1) |
 | Lựa chọn bỏ qua phần thưởng của nước đi | agent chọn bằng `argmax V(afterstate)`, không phải `argmax (reward + γ·V(afterstate))`; cách sửa ở mục 8.2 |
 | 4 đặc trưng do con người làm | agent không thấy những mẫu nằm ngoài các đặc trưng này, ví dụ một giếng sâu |
 | Không nhìn trước | trò chơi biết mảnh tiếp theo, nhưng agent không dùng nó |
@@ -401,6 +401,12 @@ Chỉ có chênh lệch giữa các giá trị là quan trọng. Agent so sánh 
 | **n-step returns** | dùng phần thưởng của nhiều bước trước khi bootstrap | Sutton và Barto, chương 7 |
 | **Huber loss** | hàm mất mát tăng chậm hơn MSE khi sai số lớn, nên phần thưởng lớn tạo bước nhảy nhỏ hơn | thực hành phổ biến của DQN |
 | **Rainbow** | kết hợp 6 cải tiến của DQN | Hessel và cộng sự, 2018 |
+
+[Bài 3](../../notebooks/03_training_loop.ipynb), Phần 11 thử mạng mục tiêu. Trong dự án này nó làm agent **tệ hơn**:
+số hàng kiểm tra trung bình (3 seed) giảm từ 114 xuống 17 khi sao chép mỗi 10 bước, và xuống 1 khi sao chép mỗi 500 bước.
+Với 6000 bước kết quả vẫn vậy (118 so với 17). Lý do: với một bản sao đóng băng, giá trị chỉ tăng được khoảng
+một phần thưởng sau mỗi lần sao chép, nên giá trị vẫn quá nhỏ khi huấn luyện ngắn (734 so với 252 cho bàn chơi sạch ở bước 3000).
+Bài báo DQN huấn luyện trên 50 triệu khung hình và cắt phần thưởng về −1..+1. Một phương pháp hiệu quả ở thiết lập này có thể thất bại ở thiết lập khác.
 
 ### 8.2 Quyết định tốt hơn
 

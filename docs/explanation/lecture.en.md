@@ -378,7 +378,7 @@ Only the differences between values matter. The agent compares afterstates of th
 
 | Limit | Effect |
 |---|---|
-| No target network | the targets move with each step, so training is unstable and a good network can get worse |
+| No target network | the targets move with each step, so training is unstable and a good network can get worse (but see section 8.1) |
 | The choice ignores the reward of the move | the agent chooses with `argmax V(afterstate)`, not `argmax (reward + γ·V(afterstate))`; the fix is in section 8.2 |
 | 4 hand-made features | the agent cannot see patterns outside these features, for example a deep well |
 | No look-ahead | the game knows the next piece, but the agent does not use it |
@@ -400,6 +400,12 @@ Only the differences between values matter. The agent compares afterstates of th
 | **n-step returns** | use the rewards of several steps before the bootstrap | Sutton and Barto, ch. 7 |
 | **Huber loss** | a loss that grows less fast than MSE for large errors, so large rewards make smaller jumps | common DQN practice |
 | **Rainbow** | a combination of 6 DQN improvements | Hessel et al., 2018 |
+
+[Lesson 3](../../notebooks/03_training_loop.ipynb), Part 11 tests the target network. In this project it made the agent **worse**:
+the average test lines (3 seeds) went from 114 to 17 with a copy every 10 steps, and to 1 with a copy every 500 steps.
+With 6000 steps the result was the same (118 against 17). The reason: with a frozen copy, the value can grow by only about
+one reward for each copy, so the values stay too small in a short training (734 against 252 for a clean board at step 3000).
+The DQN paper trained on 50 million frames and clipped the rewards to −1..+1. A method that works in one setting can fail in another.
 
 ### 8.2 Better decisions
 
